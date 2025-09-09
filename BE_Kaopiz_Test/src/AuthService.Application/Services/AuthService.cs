@@ -2,21 +2,24 @@ using AuthenticationService.Application.DTOs;
 using AuthenticationService.Application.Interfaces;
 using AuthenticationService.Domain.Entities;
 using AuthenticationService.Infrastructure.Data;
-using AuthenticationService.Infrastructure.Auth;
 namespace AuthenticationService.Application.Services;
 
 using System.Security.Cryptography;
 using System.Text;
+using AuthenticationService.Infrastructure.Auth;
+using AuthService.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 public class AuthenService : IAuthService
 {
     private readonly AppDbContext _db;
     private readonly JwtTokenService _jwt;
+    private readonly IEnumerable<IAuthenticationStrategy> _authStrategies;
 
-    public AuthenService(AppDbContext db, JwtTokenService jwt)
+    public AuthenService(AppDbContext db, JwtTokenService jwt, IEnumerable<IAuthenticationStrategy> authStrategies)
     {
         _db = db;
         _jwt = jwt;
+        _authStrategies = authStrategies;
     }
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
@@ -29,6 +32,7 @@ public class AuthenService : IAuthService
         {
             Username = request.Username,
             Email = request.Email,
+            Role = request.UserType,
             PasswordHash = hash,
             PasswordSalt = salt
         };
@@ -53,33 +57,26 @@ public class AuthenService : IAuthService
         if (user == null || !VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
             throw new Exception("Invalid credentials");
 
-        var (accessToken, accessExpires) = _jwt.GenerateToken(user);
-        string? refreshToken = "";
-        DateTime? refreshExpires = null;
-        if (request.RememberMe)
-        {
-            // Tạo refresh token mới
-            refreshToken = Guid.NewGuid().ToString();
-            refreshExpires = DateTime.UtcNow.AddDays(7);
+         // Tìm strategy phù hợp với user type và mỗi loại user sẽ có một cách xử lý khác nhau
+        var strategy = _authStrategies.FirstOrDefault(s => s.CanHandle(user.Role));
+        if (strategy == null)
+            throw new NotSupportedException($"Authentication not supported for user type: {user.Role}");
 
-            var refreshTokenEntity = new RefreshToken
-            {
-                Token = refreshToken,
-                ExpiresAt = refreshExpires.Value,
-                UserId = user.Id
-            };
-            _db.RefreshTokens.Add(refreshTokenEntity);
+        // Validate theo strategy
+        await strategy.ValidateCredentialsAsync(user, request);
+
+        // Tạo response theo strategy
+        return await strategy.CreateAuthResponseAsync(user, request);
+    }
+    public async Task LogoutAsync(string refreshToken)
+    {
+        var tokenEntity = await _db.RefreshTokens.SingleOrDefaultAsync(t => t.Token == refreshToken);
+        if (tokenEntity != null)
+        {
+            _db.RefreshTokens.Remove(tokenEntity);
             await _db.SaveChangesAsync();
         }
-
-        return new AuthResponse
-        {
-            Username = user.Username,
-            AccessToken = accessToken,
-            AccessTokenExpiresAt = accessExpires,
-            RefreshToken = refreshToken,
-            RefreshTokenExpiresAt = refreshExpires
-        };
+        // Nếu không tìm thấy cũng không báo lỗi để tránh lộ thông tin
     }
 
 
