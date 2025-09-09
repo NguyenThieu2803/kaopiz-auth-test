@@ -1,0 +1,20 @@
+# .NET
+bin/
+obj/
+*.user
+*.rsuser
+*.suo
+.vscode/
+*.db
+*.log
+appsettings.*.json
+secrets.json
+
+# VS Code
+.vscode/
+
+# Node
+node_modules/
+
+# Others
+.DS_Store
