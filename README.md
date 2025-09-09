@@ -3,7 +3,7 @@
 Dự án test cho vị trí .NET Developer tại Kaopiz.  
 Ứng dụng bao gồm **Backend (ASP.NET Core API)** và **Frontend (ReactJS)** với các chức năng đăng ký, đăng nhập, phân quyền cơ bản.
 
-### 3. **Công nghệ sử dụng**
+###  **Công nghệ sử dụng**
 ```markdown
 ## 🛠️ Công nghệ
 
@@ -32,3 +32,4 @@ dotnet run
 cd FE_Kaopiz_Test
 npm install
 npm start
+
