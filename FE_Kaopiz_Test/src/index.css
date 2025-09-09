@@ -36,6 +36,16 @@ h1 {
   line-height: 1.1;
 }
 
+/* Fix cho input và select */
+input, select, textarea {
+  color: #1f2937 !important;
+  background-color: #ffffff !important;
+}
+
+input::placeholder {
+  color: #9ca3af !important;
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -65,5 +75,10 @@ button:focus-visible {
   }
   button {
     background-color: #f9f9f9;
+  }
+  
+  /* Đảm bảo input vẫn có màu chữ đen trong light mode */
+  input, select, textarea {
+    color: #1f2937 !important;
   }
 }
