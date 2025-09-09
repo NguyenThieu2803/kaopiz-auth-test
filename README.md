@@ -19,3 +19,16 @@ cd BE_Kaopiz_Test/AuthService.API
 dotnet restore
 dotnet ef database update   # Tạo database
 dotnet run
+
+## 🚀 Cài đặt & chạy
+
+### Backend
+```bash
+cd BE_Kaopiz_Test/AuthService.API
+dotnet restore
+dotnet ef database update   # Tạo database
+dotnet run
+
+cd FE_Kaopiz_Test
+npm install
+npm start
