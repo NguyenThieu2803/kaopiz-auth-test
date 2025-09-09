@@ -464,14 +464,6 @@ function RegisterPage() {
               value={form.userType}
               onChange={handleChange}
               style={styles.select}
-              onFocus={(e) => {
-                e.target.style.borderColor = "#3b82f6"
-                e.target.style.boxShadow = "0 0 0 3px rgba(59, 130, 246, 0.1)"
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = "#e2e8f0"
-                e.target.style.boxShadow = "none"
-              }}
             >
               <option value={0}>End User</option>
               <option value={1}>Admin</option>
@@ -484,16 +476,22 @@ function RegisterPage() {
             style={styles.button}
             onMouseEnter={(e) => {
               if (!isLoading) {
-                e.target.style.transform = "translateY(-2px)"
-                e.target.style.boxShadow = "0 20px 40px -12px rgba(59, 130, 246, 0.4)"
-                e.target.querySelector(".button-glow").style.opacity = "0.1"
+                e.currentTarget.style.transform = "translateY(-2px)"
+                e.currentTarget.style.boxShadow = "0 20px 40px -12px rgba(59, 130, 246, 0.4)"
+                const buttonGlow = e.currentTarget.querySelector(".button-glow")
+                if (buttonGlow) {
+                  buttonGlow.style.opacity = "0.1"
+                }
               }
             }}
             onMouseLeave={(e) => {
               if (!isLoading) {
-                e.target.style.transform = "translateY(0)"
-                e.target.style.boxShadow = "none"
-                e.target.querySelector(".button-glow").style.opacity = "0"
+                e.currentTarget.style.transform = "translateY(0)"
+                e.currentTarget.style.boxShadow = "none"
+                const buttonGlow = e.currentTarget.querySelector(".button-glow")
+                if (buttonGlow) {
+                  buttonGlow.style.opacity = "0"
+                }
               }
             }}
           >
